@@ -47,6 +47,7 @@ public class ArticleDetailFragment extends Fragment implements
     private long mItemId;
     private View mRootView;
     private ImageView mPhotoView;
+    private Toolbar mtoolbar;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -92,6 +93,8 @@ public class ArticleDetailFragment extends Fragment implements
             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mtoolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        mtoolbar.inflateMenu(R.menu.activity_article_detail);
         bindViews();
         return mRootView;
     }
@@ -100,7 +103,6 @@ public class ArticleDetailFragment extends Fragment implements
         if (mRootView == null) {
             return;
         }
-
         TextView articleTitle = (TextView) mRootView.findViewById(R.id.article_title);
         TextView articlePublished = (TextView) mRootView.findViewById(R.id.article_published);
         TextView articleBy = (TextView) mRootView.findViewById(R.id.article_by);
@@ -110,11 +112,10 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-            toolbar.inflateMenu(R.menu.activity_article_detail);
-            toolbar.setOnMenuItemClickListener(this);
-            toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+            mtoolbar.setOnMenuItemClickListener(this);
+            mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+            mtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     getActivityCast().onSupportNavigateUp();
@@ -122,7 +123,7 @@ public class ArticleDetailFragment extends Fragment implements
             });
 
             articleTitle.setText(mCursor.getString(ArticleLoader.Query.TITLE));;
-            toolbar.setTitle(articleTitle.getText());
+            mtoolbar.setTitle(articleTitle.getText());
             articlePublished.setText( DateUtils.getRelativeTimeSpanString(
                     mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
                     System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
