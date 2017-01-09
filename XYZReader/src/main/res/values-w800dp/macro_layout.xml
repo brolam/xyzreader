@@ -1,4 +1,4 @@
 <resources>
-   <dimen name="list_side_margin">64dp</dimen>
+   <dimen name="default_margin_horizontal">64dp</dimen>
    <integer name="list_column_count">2</integer>
 </resources>

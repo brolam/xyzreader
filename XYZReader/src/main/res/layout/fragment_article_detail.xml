@@ -36,6 +36,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="@dimen/default_margin_horizontal"
+        android:paddingRight="@dimen/default_margin_horizontal"
         android:layout_marginBottom="@dimen/default_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         >
@@ -43,11 +45,7 @@
             android:id="@+id/article_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/default_margin"
             android:layout_marginTop="@dimen/default_text_margin"
-            android:layout_marginLeft="@dimen/default_margin"
-
-
             />
     </android.support.v4.widget.NestedScrollView>
 
