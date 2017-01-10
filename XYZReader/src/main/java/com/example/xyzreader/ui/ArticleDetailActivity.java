@@ -4,9 +4,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,16 +24,24 @@ import com.example.xyzreader.data.ItemsContract;
 public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    //BODY_VIEW_TEXT_ZOOM grava o ultimo tamanho da fonte definido pelo o usuário
+    //na SharedPreferences, sendo assim, o ultimo tamanho da fonte sempre
+    //será recuperado como tamanho padrão.
+    private static  final String BODY_VIEW_TEXT_ZOOM = "body_view_text_zoom";
+    private static  final byte BODY_VIEW_TEXT_ZOOM_ADD = 3;
+
     private Cursor mCursor;
     private long mStartId;
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_detail);
         getLoaderManager().initLoader(0, null, this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -84,6 +94,22 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
             mStartId = 0;
         }
+    }
+
+    public int getBodyViewTextZoom(){
+        return sharedPreferences.getInt(BODY_VIEW_TEXT_ZOOM,100);
+    }
+
+    public void setBodyViewTextZoomIn(){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(BODY_VIEW_TEXT_ZOOM,getBodyViewTextZoom() + BODY_VIEW_TEXT_ZOOM_ADD);
+        editor.commit();
+    }
+
+    public void setBodyViewTextZoomOut(){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(BODY_VIEW_TEXT_ZOOM,getBodyViewTextZoom() - BODY_VIEW_TEXT_ZOOM_ADD);
+        editor.commit();
     }
 
     @Override

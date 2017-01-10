@@ -10,8 +10,10 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -25,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,8 +49,10 @@ public class ArticleDetailFragment extends Fragment implements
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
+    private WebView bodyView;
     private ImageView mPhotoView;
     private Toolbar mtoolbar;
+    private Toolbar mtoolbarBottom;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -94,7 +99,25 @@ public class ArticleDetailFragment extends Fragment implements
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
         mtoolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        mtoolbarBottom = (Toolbar) mRootView.findViewById(R.id.toolbarBottom);
         mtoolbar.inflateMenu(R.menu.activity_article_detail);
+        mtoolbarBottom.inflateMenu(R.menu.activity_article_detail_appbar_botton);
+        bodyView = (WebView) mRootView.findViewById(R.id.article_body);
+        bodyView.getSettings().setStandardFontFamily("Roboto-Light");
+        //Configuração do background do WebView bodyView para android.R.color.transparent
+        bodyView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                view.setBackgroundColor(ContextCompat.getColor(view.getContext(), android.R.color.transparent));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                } else {
+                    view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                }
+            }
+        });
+        bodyView.setBackgroundResource(android.R.color.transparent);
         bindViews();
         return mRootView;
     }
@@ -106,7 +129,7 @@ public class ArticleDetailFragment extends Fragment implements
         TextView articleTitle = (TextView) mRootView.findViewById(R.id.article_title);
         TextView articlePublished = (TextView) mRootView.findViewById(R.id.article_published);
         TextView articleBy = (TextView) mRootView.findViewById(R.id.article_by);
-        WebView bodyView = (WebView) mRootView.findViewById(R.id.article_body);
+
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -114,6 +137,7 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.animate().alpha(1);
 
             mtoolbar.setOnMenuItemClickListener(this);
+            mtoolbarBottom.setOnMenuItemClickListener(this);
             mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back);
             mtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -130,7 +154,10 @@ public class ArticleDetailFragment extends Fragment implements
                     DateUtils.FORMAT_ABBREV_ALL).toString()
             );
             articleBy.setText(mCursor.getString(ArticleLoader.Query.AUTHOR));
-            bodyView.loadData(mCursor.getString(ArticleLoader.Query.BODY), "text/html; charset=utf-8", "UTF-8");
+            String justifyText = String.format("<p style='text-align:justify'>%s</>", mCursor.getString(ArticleLoader.Query.BODY));
+            bodyView.loadData(justifyText, "text/html; charset=utf-8", "UTF-8");
+            bodyView.getSettings().setTextZoom(getActivityCast().getBodyViewTextZoom());
+
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -193,7 +220,15 @@ public class ArticleDetailFragment extends Fragment implements
                     .setType("text/plain")
                     .setText("Some sample text")
                     .getIntent(), getString(R.string.action_share)));
+        } else if (item.getItemId() == R.id.action_zoom_in){
+            getActivityCast().setBodyViewTextZoomIn();
+            bodyView.getSettings().setTextZoom(getActivityCast().getBodyViewTextZoom());
+        } else if (item.getItemId() == R.id.action_zoom_out){
+            getActivityCast().setBodyViewTextZoomOut();
+            bodyView.getSettings().setTextZoom(getActivityCast().getBodyViewTextZoom());
         }
+
+
 
         return true;
     }

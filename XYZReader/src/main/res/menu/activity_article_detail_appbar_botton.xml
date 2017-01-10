@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_zoom_out"
+        android:title="@string/action_zoom_out"
+        android:icon="@drawable/ic_action_font_out"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_zoom_in"
+        android:title="@string/action_zoom_in"
+        android:icon="@drawable/ic_action_font_in"
+        app:showAsAction="always"/>
+</menu>
