@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
@@ -26,6 +27,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -42,7 +45,7 @@ import com.example.xyzreader.data.ArticleLoader;
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
 public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>, Toolbar.OnMenuItemClickListener {
+        LoaderManager.LoaderCallbacks<Cursor>, Toolbar.OnMenuItemClickListener, View.OnClickListener {
     private static final String TAG = "ArticleDetailFragment";
     public static final String ARG_ITEM_ID = "item_id";
     private Cursor mCursor;
@@ -51,7 +54,7 @@ public class ArticleDetailFragment extends Fragment implements
     private WebView bodyView;
     private ImageView mPhotoView;
     private Toolbar mtoolbar;
-    private Toolbar mtoolbarBottom;
+    private FloatingActionButton mFab;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -98,9 +101,8 @@ public class ArticleDetailFragment extends Fragment implements
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
         mtoolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-        mtoolbarBottom = (Toolbar) mRootView.findViewById(R.id.toolbarBottom);
         mtoolbar.inflateMenu(R.menu.activity_article_detail);
-        mtoolbarBottom.inflateMenu(R.menu.activity_article_detail_appbar_botton);
+        mFab = (FloatingActionButton) mRootView.findViewById(R.id.fab);
         bodyView = (WebView) mRootView.findViewById(R.id.article_body);
         bodyView.getSettings().setStandardFontFamily("Roboto-Light");
         //Configuração do background do WebView bodyView para android.R.color.transparent
@@ -114,9 +116,12 @@ public class ArticleDetailFragment extends Fragment implements
                 } else {
                     view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
                 }
+                doAnimationFab();
             }
         });
         bodyView.setBackgroundResource(android.R.color.transparent);
+        mFab.setOnClickListener(this);
+
         bindViews();
         return mRootView;
     }
@@ -136,7 +141,6 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.animate().alpha(1);
 
             mtoolbar.setOnMenuItemClickListener(this);
-            mtoolbarBottom.setOnMenuItemClickListener(this);
             mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back);
             mtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -172,6 +176,7 @@ public class ArticleDetailFragment extends Fragment implements
 
                         }
                     });
+
         } else {
             mRootView.setVisibility(View.GONE);
             articleTitle.setText("N/A");
@@ -215,10 +220,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (item.getItemId() == R.id.action_share){
-            startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
-                    .setType("text/plain")
-                    .setText("Some sample text")
-                    .getIntent(), getString(R.string.action_share)));
+            shareArticle();
         } else if (item.getItemId() == R.id.action_zoom_in){
             getActivityCast().setBodyViewTextZoomIn();
             bodyView.getSettings().setTextZoom(getActivityCast().getBodyViewTextZoom());
@@ -230,5 +232,26 @@ public class ArticleDetailFragment extends Fragment implements
 
 
         return true;
+    }
+
+    private void shareArticle() {
+        startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                .setType("text/plain")
+                .setText("Some sample text")
+                .getIntent(), getString(R.string.action_share)));
+    }
+
+    @Override
+    public void onClick(View view) {
+        if ( view.equals(mFab)){
+            shareArticle();
+        }
+    }
+
+    public void doAnimationFab(){
+        if ( getActivityCast() != null) {
+            Animation animation = AnimationUtils.loadAnimation(getActivityCast(), R.anim.fab_button);
+            this.mFab.startAnimation(animation);
+        }
     }
 }

@@ -9,6 +9,7 @@
     <dimen name="default_text_margin">8dp</dimen>
 
     <dimen name="card_article_height">250dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 
 
 </resources>
